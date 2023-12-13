@@ -3,6 +3,7 @@ ttemapit <-
            data = parent.frame(),
            kins = NULL,
            id,
+           tte,
            maxiter = 500,
            tol = 1e-5,
            taumin = 1e-5,
@@ -31,6 +32,8 @@ ttemapit <-
     mdl <- model.frame(formula = fixed,
                        data = data,
                        na.action = na.omit)
+    browser()
+    time <- data[rownames(mdl), tte]
     idx <- match(rownames(mdl), rownames(model.frame(
       formula = fixed,
       data = data,
@@ -58,6 +61,7 @@ ttemapit <-
     time.var <- NULL
     fit <- ttemapit.fit(
       fit0,
+      time,
       kins,
       group.id,
       maxiter = maxiter,
@@ -74,6 +78,7 @@ ttemapit <-
   }
 
 ttemapit.fit <- function(fit0,
+                         time,
                          kins,
                          group.id,
                          maxiter = 500,
@@ -97,6 +102,7 @@ ttemapit.fit <- function(fit0,
   fixtau.old <- rep(0, length(kins) + ng)
   fit <- ttemapit.ai(
     fit0 = fit0,
+    time = time,
     kins = kins,
     covariance.idx = covariance.idx,
     group.idx = group.idx,
@@ -116,6 +122,7 @@ ttemapit.fit <- function(fit0,
     fit <-
       ttemapit.ai(
         fit0 = fit0,
+        time = time,
         kins = kins,
         covariance.idx = covariance.idx,
         group.idx = group.idx,
@@ -138,6 +145,7 @@ ttemapit.fit <- function(fit0,
 
 ttemapit.ai <-
   function(fit0,
+           time,
            kins,
            covariance.idx = NULL,
            group.idx,
@@ -147,7 +155,6 @@ ttemapit.ai <-
            maxiter = 500,
            tol = 1e-5,
            verbose = FALSE) {
-    browser()
     y <- fit0$y
     n <- length(y)
     offset <- fit0$offset
@@ -207,8 +214,9 @@ ttemapit.ai <-
     }
     
     for (i in seq_len(maxiter)) {
-      if (verbose)
+      if (verbose) {
         cat("\nIteration ", i, ":\n")
+      }
       alpha0 <- alpha
       tau0 <- tau
       fit <- .Call(C_fitglmm_ai,
@@ -242,11 +250,16 @@ ttemapit.ai <-
         cat("Fixed-effect coefficients:\n")
         print(alpha)
       }
-      mu <- family$linkinv(eta)
-      mu.eta <- family$mu.eta(eta)
-      Y <- eta - offset + (y - mu) / mu.eta
-      sqrtW <-
-        mu.eta / sqrt(1 / as.vector(weights(fit0)) * family$variance(mu))
+      # INSERT SURVIVAL
+      Lambda0 <- GetLambda0(eta, y, time) + 1e-5 # TODO: Fix Lambda0
+      mu <- Lambda0 * exp(eta)
+      Y <- eta - offset + (y - mu) / mu
+      sqrtW <- as.vector(sqrt(mu))
+      # END INSERTION
+      # mu <- family$linkinv(eta)
+      # mu.eta <- family$mu.eta(eta)
+      # Y <- eta - offset + (y - mu) / mu.eta
+      # sqrtW <- mu.eta / sqrt(1 / as.vector(weights(fit0)) * family$variance(mu))
       if (2 * max(abs(alpha - alpha0) / (abs(alpha) + abs(alpha0) + tol),
                   abs(tau - tau0) / (abs(tau) + abs(tau0) + tol)) < tol) {
         break

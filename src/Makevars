@@ -1,0 +1,13 @@
+PKG_CPPFLAGS=-Izstd/lib -Izstd/lib/common
+PKG_LIBS_ORI=-lzstd 
+SOURCES_ZSTD=
+SOURCES_LIBDEFLATE=libdeflate/lib/adler32.c libdeflate/lib/deflate_decompress.c libdeflate/lib/utils.c libdeflate/lib/crc32.c libdeflate/lib/gzip_compress.c libdeflate/lib/zlib_compress.c libdeflate/lib/deflate_compress.c libdeflate/lib/gzip_decompress.c libdeflate/lib/zlib_decompress.c libdeflate/lib/arm/cpu_features.c libdeflate/lib/x86/cpu_features.c
+
+PKG_CXXFLAGS=-DARMA_64BIT_WORD
+
+OBJECTS_ZSTD = $(SOURCES_ZSTD:.c=.o)
+OBJECTS_LIBDEFLATE = $(SOURCES_LIBDEFLATE:.c=.o)
+
+PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -lz -lbz2 $(PKG_LIBS_ORI) $(OBJECTS_ZSTD) $(OBJECTS_LIBDEFLATE)
+
+$(SHLIB): $(OBJECTS_ZSTD) $(OBJECTS_LIBDEFLATE)

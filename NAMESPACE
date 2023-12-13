@@ -15,4 +15,4 @@ importFrom("data.table", "fread")
 useDynLib(GMMAT, .registration = TRUE, .fixes = "C_")
 
 # functions
-export(glmmkin, glmm.score, glmm.wald, glmm.score.meta, SMMAT, SMMAT.prep, SMMAT.lowmem, SMMAT.meta)
+export(glmmkin)

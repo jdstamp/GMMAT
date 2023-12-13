@@ -1,5 +1,6 @@
 glmmkin <- function(fixed, data = parent.frame(), kins = NULL, id, random.slope = NULL, groups = NULL, family = binomial(link = "logit"), method = "REML", method.optim = "AI", maxiter = 500, tol = 1e-5, taumin = 1e-5, taumax = 1e5, tauregion = 10, verbose = FALSE, ...) {
   call <- match.call()
+  browser()
   if(!is.null(kins) && !inherits(kins, c("matrix", "list"))) {
     if(is.null(attr(class(kins), "package"))) stop("Error: \"kins\" must be a matrix or a list.")
     else if(attr(class(kins), "package") != "Matrix") stop("Error: if \"kins\" is a sparse matrix, it must be created using the Matrix package.")

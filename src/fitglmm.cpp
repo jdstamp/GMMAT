@@ -568,16 +568,18 @@ void nmmin(int n, double *Bvec, double *X, double *Fmin, optimfn fn,
 		for(size_t i=1; i<=q; ++i) {
 			P = P + tau[i+ng-1] * as<mat>(Phi[i-1]);
 		}
+		double detSigma = det(P);
 		mat Sigma_i = inv_sympd(P);
 		mat Sigma_iX = Sigma_i * X;
 		cov = inv_sympd(X.t() * Sigma_iX);
 		P = Sigma_i - Sigma_iX * cov * Sigma_iX.t();
+		vec PY = P * Y;
 		alpha = cov * Sigma_iX.t() * Y;
 		eta = Y - diagP % (Sigma_i * (Y - X * alpha));
-       		if(q2 > 0) {
-		        const uvec idxtau = find(fixtau == 0);
-		        mat AI(q2, q2);
-		        vec PY = P * Y;
+		double logLik = -0.5 * (detSigma - dot(Y, PY));
+ 		if(q2 > 0) {
+      const uvec idxtau = find(fixtau == 0);
+      mat AI(q2, q2);
 			vec score(q2), PAPY;
 			vec APY = PY / W;
 			diagP = diagvec(P) / W;
@@ -616,9 +618,9 @@ void nmmin(int n, double *Bvec, double *X, double *Fmin, optimfn fn,
 			//	tau.elem( find(ZERO % (tau < tol)) ).zeros();
 			//}
 			//tau.elem( find(tau < tol) ).zeros();
-			return List::create(Named("Dtau") = Dtau, Named("P") = P, Named("cov") = cov, Named("alpha") = alpha, Named("eta") = eta);
+			return List::create(Named("Dtau") = Dtau, Named("P") = P, Named("cov") = cov, Named("alpha") = alpha, Named("eta") = eta, Named("logLik") = logLik);
 		} else {
-			return List::create(Named("Dtau") = R_NilValue, Named("P") = P, Named("cov") = cov, Named("alpha") = alpha, Named("eta") = eta);
+			return List::create(Named("Dtau") = R_NilValue, Named("P") = P, Named("cov") = cov, Named("alpha") = alpha, Named("eta") = eta, Named("logLik") = logLik);
 		}
 	} catch( std::exception &ex ) {
 		forward_exception_to_r( ex );

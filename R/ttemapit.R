@@ -32,7 +32,6 @@ ttemapit <-
     mdl <- model.frame(formula = fixed,
                        data = data,
                        na.action = na.omit)
-    browser()
     time <- data[rownames(mdl), tte]
     idx <- match(rownames(mdl), rownames(model.frame(
       formula = fixed,
@@ -114,6 +113,7 @@ ttemapit.fit <- function(fit0,
   while (any(fixtau.new != fixtau.old) ||
          (!is.null(fixrho.new) &&
           any(fixrho.new != fixrho.old))) {
+    break
     warning(
       "Variance estimate on the boundary of the parameter space observed, refitting model...",
       call. = FALSE
@@ -192,6 +192,7 @@ ttemapit.ai <-
       tau[i + ng] <- tau[i + ng] / mean(diag(kins[[i]]))
       Sigma <- Sigma + tau[i + ng] * kins[[i]]
     }
+    Sigma <- Sigma + diag(rep(1e-10, ncol(Sigma)))
     Sigma_i <- chol2inv(chol(Sigma))
     rm(Sigma, diagSigma)
     gc()
@@ -293,6 +294,7 @@ ttemapit.ai <-
         Y = Y,
         X = X,
         P = fit$P,
+        logLik = fit$logLik,
         residuals = res,
         scaled.residuals = res * as.vector(weights(fit0)) / res.var,
         cov = cov,

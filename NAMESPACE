@@ -11,6 +11,8 @@ if(tools:::.OStype() == "windows") importFrom("utils", "winProgressBar", "setWin
 importFrom("CompQuadForm", "davies", "liu")
 importFrom("methods", "as")
 importFrom("data.table", "fread")
+importFrom("coxed", "sim.survdata")
+import("checkmate")
 
 useDynLib(GMMAT, .registration = TRUE, .fixes = "C_")
 

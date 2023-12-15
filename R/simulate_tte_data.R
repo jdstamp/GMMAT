@@ -17,6 +17,11 @@
 #' @export
 #' @import checkmate
 #' @importFrom coxed sim.survdata
+#' @import dplyr
+#' @import foreach
+#' @import parallel
+#' @importFrom stats var cor sd complete.cases
+#' @importFrom utils head
 simulate_tte_data <- function(
     genotype_matrix, covariate_matrix, n_causal = 1000, n_epistatic = 20,
     heritability = 0.6, rho = 0.8, maxT = 100, scale_effects = 1,

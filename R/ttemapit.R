@@ -1,3 +1,21 @@
+#' The time-to-event Marginal Epistasis Test
+#' 
+#' @param fixed The formula for the covariates
+#' @param data The dataframe with the traits and the covariates
+#' @param kins The list of covariance matrices
+#' @param id The string denoting the sample ID column in data
+#' @param tte The string denoting the time to event column in data
+#' @param maxiter Integer for the maximum number of iteratins in the optimization routine
+#' @param tol Float for the convergence criterium
+#' @param taumin Float that is minimum tau
+#' @param taumax Float that is maximum tau
+#' @param tauregion Float that is range of tau
+#' @param verbose Boolean that toggles print outs.
+#' @return Named list with model parameters etc.
+#' @export
+#' @useDynLib GMMAT
+#' @import Rcpp
+#' @importFrom stats binomial model.frame model.matrix na.omit na.pass rnorm vcov weights
 ttemapit <-
   function(fixed,
            data = parent.frame(),
@@ -220,8 +238,7 @@ ttemapit.ai <-
       }
       alpha0 <- alpha
       tau0 <- tau
-      fit <- .Call(C_fitglmm_ai,
-                   Y,
+      fit <- fitglmm_ai(Y,
                    X,
                    q,
                    kins,
